@@ -1,0 +1,11 @@
+﻿.idea/
+.vscode/
+__pycache__/
+*.pyc
+logs/
+*.log
+.env
+.venv/
+conf/app_config.yaml
+docker/embedding/bge-large-zh-v1.5/
+__pycache__/
