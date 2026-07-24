@@ -102,7 +102,7 @@ cd frontend
 npm install
 npm run dev
 📊 效果展示
-![输入图片说明](https://foruda.gitee.com/images/1784858396572042583/5c8d88d3_6530534.png "屏幕截图")
+![界面效果](docs/images/demo1.png)
 
 💡 设计亮点
 1.三路并行召回 + RRF 融合：字段语义走向量、精确值走 ES、业务指标单独建库，三路结果用倒数排名融合，兼顾语义理解和精确匹配
