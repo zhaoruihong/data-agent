@@ -19,17 +19,23 @@ class MetaMySQLRepository:
 
     async def save_table_infos(self, table_infos: list[TableInfo]):
         models = [TableInfoMapper.to_model(table_info) for table_info in table_infos]
-        self.session.add_all(models)
+        for model in models:
+            await self.session.merge(model)
 
     async def save_column_infos(self, columns_info: list[ColumnInfo]):
         models = [ColumnInfoMapper.to_model(column_info) for column_info in columns_info]
-        self.session.add_all(models)
+        for model in models:
+            await self.session.merge(model)
 
     async def save_metric_infos(self, metric_infos: list[MetricInfo]):
-        self.session.add_all([MetricInfoMapper.to_model(metric_info) for metric_info in metric_infos])
+        models = [MetricInfoMapper.to_model(metric_info) for metric_info in metric_infos]
+        for model in models:
+            await self.session.merge(model)
 
     async def save_column_metrics(self, column_metrics: list[ColumnMetric]):
-        self.session.add_all([ColumnMetricMapper.to_model(column_metric) for column_metric in column_metrics])
+        models = [ColumnMetricMapper.to_model(column_metric) for column_metric in column_metrics]
+        for model in models:
+            await self.session.merge(model)
 
     async def get_column_info_by_id(self, column_id: str) -> ColumnInfo | None:
         result: ColumnInfoMySQL | None = await self.session.get(ColumnInfoMySQL, column_id)

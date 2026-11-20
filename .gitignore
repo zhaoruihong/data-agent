@@ -1,11 +1,40 @@
-﻿.idea/
+﻿# IDE
+.idea/
 .vscode/
+
+# Python
 __pycache__/
 *.pyc
+*.pyo
+*.egg-info/
+.Python
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtualenv
+.venv/
+venv/
+env/
+
+# Logs
 logs/
 *.log
+
+# Env & config
 .env
-.venv/
+.env.*
 conf/app_config.yaml
+
+# Frontend
+node_modules/
+frontend/data-agent-fronted/dist/
+
+# Embedding model (large binary)
 docker/embedding/bge-large-zh-v1.5/
-__pycache__/
+
+# OS
+.DS_Store
+Thumbs.db

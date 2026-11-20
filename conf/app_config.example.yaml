@@ -44,3 +44,9 @@ es:
 #   model_name: gpt-5.2-codex
 #   api_key: <api-key>
 #   base_url: https://api.openai-proxy.org/v1
+
+langfuse:
+  enabled: false          # 改为 true 开启 tracing
+  public_key: pk-lf-xxx   # Langfuse 项目 Public Key
+  secret_key: sk-lf-xxx   # Langfuse 项目 Secret Key
+  host: http://localhost:3000  # 自托管地址；云端用 https://cloud.langfuse.com

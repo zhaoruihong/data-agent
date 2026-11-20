@@ -67,6 +67,14 @@ class llm_zhipuConfig:
 
 
 @dataclass
+class LangfuseConfig:
+    enabled: bool
+    public_key: str
+    secret_key: str
+    host: str
+
+
+@dataclass
 class AppConfig:
     logging: LoggingConfig
     db_meta: DBConfig
@@ -75,6 +83,7 @@ class AppConfig:
     embedding: EmbeddingConfig
     es: ESConfig
     llm_zhipu: llm_zhipuConfig
+    langfuse: LangfuseConfig
 
 
 config_file = Path(__file__).parents[2] / 'conf' / 'app_config.yaml'
