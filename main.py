@@ -3,6 +3,7 @@ import uuid
 from fastapi import FastAPI, Request
 
 from app.api.routers.query_router import query_router
+from app.api.routers.report_router import report_router
 from app.core.context import request_id_ctx_var
 from app.core.lifespan import lifespan
 
@@ -11,6 +12,7 @@ app = FastAPI(lifespan=lifespan)
 
 # 注册路由
 app.include_router(query_router)
+app.include_router(report_router)
 
 
 # 添加中间件，在每个请求中生成唯一的request_id

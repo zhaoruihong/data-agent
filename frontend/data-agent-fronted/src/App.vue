@@ -43,6 +43,12 @@
             </table>
           </div>
 
+          <!-- SQL -->
+          <div v-else-if="msg.type === 'sql'" class="sql-wrap">
+            <div class="sql-label">执行 SQL</div>
+            <pre class="sql-code">{{ msg.content }}</pre>
+          </div>
+
           <!-- 错误 -->
           <div v-else-if="msg.type === 'error'" class="error-text">
             {{ msg.content }}
@@ -65,6 +71,9 @@
         <button @click="sendQuestion" :disabled="loading">
           {{ loading ? "执行中..." : "发送" }}
         </button>
+        <button class="report-btn" @click="generateReport" :disabled="loading || reportLoading">
+          {{ reportLoading ? "生成中..." : "生成报表" }}
+        </button>
       </div>
     </div>
   </div>
@@ -77,6 +86,8 @@ const API_URL = "/api/query";
 
 const question = ref("");
 const loading = ref(false);
+const reportLoading = ref(false);
+const lastQuery = ref("");
 const messages = ref([]);
 const messagesEl = ref(null);
 
@@ -92,6 +103,7 @@ async function sendQuestion() {
   const q = question.value;
   question.value = "";
   loading.value = true;
+  lastQuery.value = q;
 
   messages.value.push({role: "user", type: "text", content: q});
 
@@ -155,6 +167,15 @@ async function sendQuestion() {
           }
         }
 
+        // ✅ 生成的 SQL
+        else if (data.type === "sql") {
+          messages.value.push({
+            role: "assistant",
+            type: "sql",
+            content: data.sql || "",
+          });
+        }
+
         // ✅ 表格结果
         else if (data.type === "result" && Array.isArray(data.data)) {
           messages.value.push({
@@ -186,6 +207,62 @@ async function sendQuestion() {
     });
   } finally {
     loading.value = false;
+    await nextTick();
+    scrollToBottom();
+  }
+}
+
+async function generateReport() {
+  const q = lastQuery.value || question.value;
+  if (!q) {
+    messages.value.push({
+      role: "assistant",
+      type: "error",
+      content: "请先输入并发送一个问题，再生成报表",
+    });
+    return;
+  }
+  if (reportLoading.value) return;
+
+  reportLoading.value = true;
+  try {
+    const response = await fetch("/api/report", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({query: q}),
+    });
+    if (!response.ok) {
+      const text = await response.text().catch(() => "");
+      throw new Error(text || `生成报表失败（${response.status}）`);
+    }
+
+    const blob = await response.blob();
+    const disposition = response.headers.get("Content-Disposition") || "";
+    let filename = `数据报表_${Date.now()}.xlsx`;
+    const utf8Match = disposition.match(/filename\*=UTF-8''([^;]+)/);
+    if (utf8Match) {
+      filename = decodeURIComponent(utf8Match[1]);
+    } else {
+      const asciiMatch = disposition.match(/filename="?([^";]+)"?/);
+      if (asciiMatch) filename = asciiMatch[1];
+    }
+
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (e) {
+    messages.value.push({
+      role: "assistant",
+      type: "error",
+      content: e?.message || "生成报表失败",
+    });
+  } finally {
+    reportLoading.value = false;
     await nextTick();
     scrollToBottom();
   }
@@ -321,6 +398,31 @@ async function sendQuestion() {
   z-index: 1;
 }
 
+/* SQL */
+.sql-wrap {
+  max-width: 100%;
+}
+
+.sql-label {
+  font-size: 12px;
+  color: #909399;
+  margin-bottom: 6px;
+}
+
+.sql-code {
+  margin: 0;
+  padding: 10px 12px;
+  background: #1e1e1e;
+  color: #d4d4d4;
+  border-radius: 8px;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-all;
+  overflow-x: auto;
+}
+
 /* 错误 */
 .error-text {
   color: #e74c3c;
@@ -372,6 +474,11 @@ async function sendQuestion() {
 
 .input-box button:disabled {
   opacity: 0.5;
+}
+
+.input-box .report-btn {
+  background: linear-gradient(135deg, #67c23a, #85ce61);
+  white-space: nowrap;
 }
 
 .messages-bottom-spacer {
