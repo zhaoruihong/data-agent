@@ -1,0 +1,434 @@
+/* ===== 全局重置 ===== */
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', 'PingFang SC',
+    'Microsoft YaHei', sans-serif;
+  background: var(--bg-page);
+  color: var(--text-primary);
+  overflow: hidden;
+  transition: background 0.5s ease, color 0.3s ease;
+}
+
+#app {
+  height: 100%;
+}
+
+/* 滚动条美化 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--scroll-thumb, rgba(128, 128, 128, 0.4));
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scroll-thumb-hover, rgba(128, 128, 128, 0.6));
+}
+
+/* ===== 关键帧动画 ===== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes pulseRing {
+  0% {
+    box-shadow: 0 0 0 0 var(--running);
+  }
+  70% {
+    box-shadow: 0 0 0 10px transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+@keyframes float1 {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(40px, -30px) scale(1.15);
+  }
+}
+
+@keyframes float2 {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-35px, 25px) scale(1.2);
+  }
+}
+
+@keyframes float3 {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(25px, 30px) scale(1.1);
+  }
+}
+
+@keyframes scanmove {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 0 4px;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes blink {
+  0%,
+  80%,
+  100% {
+    opacity: 0.25;
+    transform: scale(0.8);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes shimmerText {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+/* ===== 主题变量定义 ===== */
+
+/* 1. 极光深空（默认） */
+:root[data-theme='aurora'] {
+  --bg-page: radial-gradient(ellipse at 18% 8%, #312e81 0%, transparent 45%),
+    radial-gradient(ellipse at 82% 92%, #0e7490 0%, transparent 50%),
+    linear-gradient(160deg, #0a0e27 0%, #0f172a 50%, #111827 100%);
+  --text-primary: #e8ecff;
+  --text-secondary: #a5b0d6;
+  --text-muted: #6b7399;
+  --bubble-assistant-bg: rgba(255, 255, 255, 0.06);
+  --bubble-assistant-border: rgba(255, 255, 255, 0.12);
+  --bubble-user-bg: linear-gradient(135deg, #6366f1, #22d3ee);
+  --bubble-user-border: transparent;
+  --bubble-user-text: #ffffff;
+  --card-bg: rgba(17, 24, 39, 0.55);
+  --card-border: rgba(255, 255, 255, 0.1);
+  --shadow: 0 10px 40px rgba(0, 0, 0, 0.45);
+  --accent: #6366f1;
+  --accent-2: #22d3ee;
+  --accent-text: #ffffff;
+  --success: #34d399;
+  --running: #fbbf24;
+  --error: #f87171;
+  --timeline-line: rgba(255, 255, 255, 0.15);
+  --table-head-bg: rgba(99, 102, 241, 0.18);
+  --table-head-text: #c7d2fe;
+  --table-border: rgba(255, 255, 255, 0.1);
+  --table-row-alt: rgba(255, 255, 255, 0.03);
+  --table-hover: rgba(99, 102, 241, 0.12);
+  --sql-bg: #0b1020;
+  --sql-text: #cdd6f4;
+  --tok-kw: #cba6f7;
+  --tok-str: #a6e3a1;
+  --tok-num: #fab387;
+  --tok-com: #6c7086;
+  --input-bg: rgba(15, 23, 42, 0.72);
+  --input-border: rgba(255, 255, 255, 0.14);
+  --input-glow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+  --btn-bg: linear-gradient(135deg, #6366f1, #22d3ee);
+  --btn-text: #ffffff;
+  --header-bg: rgba(10, 14, 39, 0.6);
+  --blob-1: #6366f1;
+  --blob-2: #22d3ee;
+  --blob-3: #a855f7;
+  --blob-opacity: 0.5;
+  --scan-opacity: 0;
+  --grid-opacity: 0.06;
+  --scroll-thumb: rgba(165, 176, 214, 0.35);
+  --scroll-thumb-hover: rgba(165, 176, 214, 0.55);
+}
+
+/* 2. 晨曦玻璃（浅色毛玻璃） */
+:root[data-theme='glass-light'] {
+  --bg-page: radial-gradient(circle at 15% 20%, #c7d2fe 0%, transparent 40%),
+    radial-gradient(circle at 85% 15%, #fbcfe8 0%, transparent 40%),
+    radial-gradient(circle at 50% 90%, #fde68a 0%, transparent 45%),
+    linear-gradient(160deg, #f8faff 0%, #eef2ff 50%, #f5f3ff 100%);
+  --text-primary: #1e293b;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --bubble-assistant-bg: rgba(255, 255, 255, 0.7);
+  --bubble-assistant-border: rgba(255, 255, 255, 0.9);
+  --bubble-user-bg: linear-gradient(135deg, #6366f1, #8b5cf6);
+  --bubble-user-border: transparent;
+  --bubble-user-text: #ffffff;
+  --card-bg: rgba(255, 255, 255, 0.65);
+  --card-border: rgba(255, 255, 255, 0.9);
+  --shadow: 0 10px 35px rgba(99, 102, 241, 0.15);
+  --accent: #6366f1;
+  --accent-2: #ec4899;
+  --accent-text: #ffffff;
+  --success: #10b981;
+  --running: #f59e0b;
+  --error: #ef4444;
+  --timeline-line: rgba(99, 102, 241, 0.2);
+  --table-head-bg: rgba(99, 102, 241, 0.1);
+  --table-head-text: #4338ca;
+  --table-border: rgba(99, 102, 241, 0.15);
+  --table-row-alt: rgba(99, 102, 241, 0.03);
+  --table-hover: rgba(99, 102, 241, 0.08);
+  --sql-bg: #1e293b;
+  --sql-text: #e2e8f0;
+  --tok-kw: #c084fc;
+  --tok-str: #86efac;
+  --tok-num: #fdba74;
+  --tok-com: #94a3b8;
+  --input-bg: rgba(255, 255, 255, 0.8);
+  --input-border: rgba(99, 102, 241, 0.2);
+  --input-glow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+  --btn-bg: linear-gradient(135deg, #6366f1, #8b5cf6);
+  --btn-text: #ffffff;
+  --header-bg: rgba(255, 255, 255, 0.55);
+  --blob-1: #a5b4fc;
+  --blob-2: #f9a8d4;
+  --blob-3: #fcd34d;
+  --blob-opacity: 0.6;
+  --scan-opacity: 0;
+  --grid-opacity: 0.04;
+  --scroll-thumb: rgba(99, 102, 241, 0.3);
+  --scroll-thumb-hover: rgba(99, 102, 241, 0.5);
+}
+
+/* 3. 霓虹夜城（赛博朋克） */
+:root[data-theme='cyberpunk'] {
+  --bg-page: radial-gradient(ellipse at 50% 0%, #1a0033 0%, transparent 60%),
+    linear-gradient(160deg, #050505 0%, #0a0a0a 100%);
+  --text-primary: #e8e8e8;
+  --text-secondary: #9ca3af;
+  --text-muted: #6b7280;
+  --bubble-assistant-bg: rgba(10, 10, 10, 0.75);
+  --bubble-assistant-border: rgba(0, 240, 255, 0.35);
+  --bubble-user-bg: linear-gradient(135deg, #ff2e97, #ffe600);
+  --bubble-user-border: transparent;
+  --bubble-user-text: #050505;
+  --card-bg: rgba(10, 10, 10, 0.7);
+  --card-border: rgba(0, 240, 255, 0.3);
+  --shadow: 0 0 25px rgba(0, 240, 255, 0.25);
+  --accent: #00f0ff;
+  --accent-2: #ff2e97;
+  --accent-text: #050505;
+  --success: #39ff14;
+  --running: #ffe600;
+  --error: #ff2e97;
+  --timeline-line: rgba(0, 240, 255, 0.25);
+  --table-head-bg: rgba(255, 46, 151, 0.18);
+  --table-head-text: #00f0ff;
+  --table-border: rgba(0, 240, 255, 0.2);
+  --table-row-alt: rgba(255, 46, 151, 0.04);
+  --table-hover: rgba(0, 240, 255, 0.1);
+  --sql-bg: #0a0a0a;
+  --sql-text: #e8e8e8;
+  --tok-kw: #00f0ff;
+  --tok-str: #39ff14;
+  --tok-num: #ffe600;
+  --tok-com: #6b7280;
+  --input-bg: rgba(10, 10, 10, 0.85);
+  --input-border: rgba(0, 240, 255, 0.4);
+  --input-glow: 0 0 0 3px rgba(0, 240, 255, 0.35),
+    0 0 18px rgba(255, 46, 151, 0.3);
+  --btn-bg: linear-gradient(135deg, #00f0ff, #ff2e97);
+  --btn-text: #050505;
+  --header-bg: rgba(5, 5, 5, 0.7);
+  --blob-1: #00f0ff;
+  --blob-2: #ff2e97;
+  --blob-3: #ffe600;
+  --blob-opacity: 0.35;
+  --scan-opacity: 0.18;
+  --grid-opacity: 0.1;
+  --scroll-thumb: rgba(0, 240, 255, 0.4);
+  --scroll-thumb-hover: rgba(0, 240, 255, 0.65);
+}
+
+/* 4. 暮色暖洋 */
+:root[data-theme='sunset'] {
+  --bg-page: radial-gradient(ellipse at 20% 10%, #7c2d52 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 85%, #b45309 0%, transparent 55%),
+    linear-gradient(160deg, #2d1b3d 0%, #4a1e3a 50%, #3d1530 100%);
+  --text-primary: #fde8d8;
+  --text-secondary: #e8c4a8;
+  --text-muted: #a8897a;
+  --bubble-assistant-bg: rgba(255, 255, 255, 0.07);
+  --bubble-assistant-border: rgba(255, 200, 150, 0.2);
+  --bubble-user-bg: linear-gradient(135deg, #ff6b6b, #feca57);
+  --bubble-user-border: transparent;
+  --bubble-user-text: #2d1b3d;
+  --card-bg: rgba(61, 21, 48, 0.6);
+  --card-border: rgba(255, 200, 150, 0.18);
+  --shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  --accent: #ff6b6b;
+  --accent-2: #feca57;
+  --accent-text: #2d1b3d;
+  --success: #51cf66;
+  --running: #ffd43b;
+  --error: #ff6b6b;
+  --timeline-line: rgba(255, 200, 150, 0.2);
+  --table-head-bg: rgba(255, 107, 107, 0.18);
+  --table-head-text: #ffd8a8;
+  --table-border: rgba(255, 200, 150, 0.15);
+  --table-row-alt: rgba(255, 255, 255, 0.03);
+  --table-hover: rgba(255, 107, 107, 0.12);
+  --sql-bg: #1f1020;
+  --sql-text: #fde8d8;
+  --tok-kw: #ff9ff3;
+  --tok-str: #ffeaa7;
+  --tok-num: #fab1a0;
+  --tok-com: #a8897a;
+  --input-bg: rgba(45, 27, 61, 0.75);
+  --input-border: rgba(255, 200, 150, 0.25);
+  --input-glow: 0 0 0 3px rgba(255, 107, 107, 0.25);
+  --btn-bg: linear-gradient(135deg, #ff6b6b, #feca57);
+  --btn-text: #2d1b3d;
+  --header-bg: rgba(45, 27, 61, 0.6);
+  --blob-1: #ff6b6b;
+  --blob-2: #feca57;
+  --blob-3: #ff9ff3;
+  --blob-opacity: 0.45;
+  --scan-opacity: 0;
+  --grid-opacity: 0.05;
+  --scroll-thumb: rgba(232, 196, 168, 0.35);
+  --scroll-thumb-hover: rgba(232, 196, 168, 0.55);
+}
+
+/* 5. 薄荷深海 */
+:root[data-theme='ocean'] {
+  --bg-page: radial-gradient(ellipse at 15% 15%, #0e7490 0%, transparent 50%),
+    radial-gradient(ellipse at 85% 85%, #065f46 0%, transparent 50%),
+    linear-gradient(160deg, #042f2e 0%, #064e3b 50%, #082f49 100%);
+  --text-primary: #e6fffb;
+  --text-secondary: #99f6e4;
+  --text-muted: #5eead4;
+  --bubble-assistant-bg: rgba(255, 255, 255, 0.06);
+  --bubble-assistant-border: rgba(94, 234, 212, 0.2);
+  --bubble-user-bg: linear-gradient(135deg, #0ea5e9, #34d399);
+  --bubble-user-border: transparent;
+  --bubble-user-text: #042f2e;
+  --card-bg: rgba(6, 78, 59, 0.5);
+  --card-border: rgba(94, 234, 212, 0.18);
+  --shadow: 0 10px 40px rgba(0, 0, 0, 0.45);
+  --accent: #0ea5e9;
+  --accent-2: #34d399;
+  --accent-text: #042f2e;
+  --success: #34d399;
+  --running: #fbbf24;
+  --error: #fb7185;
+  --timeline-line: rgba(94, 234, 212, 0.2);
+  --table-head-bg: rgba(14, 165, 233, 0.18);
+  --table-head-text: #99f6e4;
+  --table-border: rgba(94, 234, 212, 0.15);
+  --table-row-alt: rgba(255, 255, 255, 0.03);
+  --table-hover: rgba(14, 165, 233, 0.12);
+  --sql-bg: #031c1a;
+  --sql-text: #e6fffb;
+  --tok-kw: #67e8f9;
+  --tok-str: #86efac;
+  --tok-num: #fcd34d;
+  --tok-com: #5eead4;
+  --input-bg: rgba(4, 47, 46, 0.75);
+  --input-border: rgba(94, 234, 212, 0.25);
+  --input-glow: 0 0 0 3px rgba(52, 211, 153, 0.25);
+  --btn-bg: linear-gradient(135deg, #0ea5e9, #34d399);
+  --btn-text: #042f2e;
+  --header-bg: rgba(4, 47, 46, 0.6);
+  --blob-1: #0ea5e9;
+  --blob-2: #34d399;
+  --blob-3: #2dd4bf;
+  --blob-opacity: 0.45;
+  --scan-opacity: 0;
+  --grid-opacity: 0.05;
+  --scroll-thumb: rgba(94, 234, 212, 0.35);
+  --scroll-thumb-hover: rgba(94, 234, 212, 0.55);
+}
+
+/* 6. 墨韵纸张（极简） */
+:root[data-theme='paper'] {
+  --bg-page: radial-gradient(ellipse at 50% 0%, #faf6ec 0%, transparent 60%),
+    linear-gradient(160deg, #f5f1e8 0%, #ede4d3 100%);
+  --text-primary: #1c1917;
+  --text-secondary: #57534e;
+  --text-muted: #a8a29e;
+  --bubble-assistant-bg: rgba(255, 250, 240, 0.9);
+  --bubble-assistant-border: rgba(201, 169, 97, 0.4);
+  --bubble-user-bg: #1c1917;
+  --bubble-user-border: transparent;
+  --bubble-user-text: #f5f1e8;
+  --card-bg: rgba(255, 250, 240, 0.85);
+  --card-border: rgba(201, 169, 97, 0.35);
+  --shadow: 0 8px 30px rgba(120, 90, 40, 0.15);
+  --accent: #c9a961;
+  --accent-2: #8b7355;
+  --accent-text: #f5f1e8;
+  --success: #65a30d;
+  --running: #d97706;
+  --error: #dc2626;
+  --timeline-line: rgba(201, 169, 97, 0.4);
+  --table-head-bg: rgba(201, 169, 97, 0.15);
+  --table-head-text: #8b7355;
+  --table-border: rgba(201, 169, 97, 0.3);
+  --table-row-alt: rgba(201, 169, 97, 0.05);
+  --table-hover: rgba(201, 169, 97, 0.12);
+  --sql-bg: #1c1917;
+  --sql-text: #f5f1e8;
+  --tok-kw: #e9c46a;
+  --tok-str: #a7c957;
+  --tok-num: #f4a261;
+  --tok-com: #a8a29e;
+  --input-bg: rgba(255, 250, 240, 0.9);
+  --input-border: rgba(201, 169, 97, 0.45);
+  --input-glow: 0 0 0 3px rgba(201, 169, 97, 0.25);
+  --btn-bg: linear-gradient(135deg, #c9a961, #8b7355);
+  --btn-text: #f5f1e8;
+  --header-bg: rgba(245, 241, 232, 0.75);
+  --blob-1: #c9a961;
+  --blob-2: #e9c46a;
+  --blob-3: #f5f1e8;
+  --blob-opacity: 0.25;
+  --scan-opacity: 0;
+  --grid-opacity: 0;
+  --scroll-thumb: rgba(139, 115, 85, 0.35);
+  --scroll-thumb-hover: rgba(139, 115, 85, 0.55);
+}
