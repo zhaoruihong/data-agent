@@ -26,8 +26,8 @@ class QueryService:
         self.meta_mysql_repository = meta_mysql_repository
         self.dw_mysql_repository = dw_mysql_repository
 
-    async def query(self, query: str):
-        context = DataAgentContext(
+    def _build_context(self) -> DataAgentContext:
+        return DataAgentContext(
             embedding_client=self.embedding_client,
             column_qdrant_repository=self.column_qdrant_repository,
             value_es_repository=self.value_es_repository,
@@ -35,9 +35,33 @@ class QueryService:
             meta_mysql_repository=self.meta_mysql_repository,
             dw_mysql_repository=self.dw_mysql_repository
         )
+
+    async def query(self, query: str):
+        context = self._build_context()
         state = DataAgentState(query=query)
         try:
             async for chunk in graph.astream(input=state, context=context, stream_mode="custom"):
                 yield f"data: {json.dumps(chunk, ensure_ascii=False, default=str)}\n\n" # SSE格式发送数据
         except Exception as e:
-            yield f"data: {json.dumps({'type': 'error', 'message': str(e)}, ensure_ascii=False, default=str)}\n\n" 
+            yield f"data: {json.dumps({'type': 'error', 'message': str(e)}, ensure_ascii=False, default=str)}\n\n"
+
+    async def collect_query(self, query: str) -> dict:
+        context = self._build_context()
+        state = DataAgentState(query=query)
+        collected = {"sql": "", "data": [], "error": None, "steps": []}
+        try:
+            async for chunk in graph.astream(input=state, context=context, stream_mode="custom"):
+                chunk_type = chunk.get("type")
+                if chunk_type == "sql":
+                    collected["sql"] = chunk.get("sql", "")
+                elif chunk_type == "result":
+                    collected["data"] = chunk.get("data") or []
+                elif chunk_type == "error":
+                    collected["error"] = chunk.get("message")
+                elif chunk_type == "progress":
+                    collected["steps"].append(
+                        {"step": chunk.get("step"), "status": chunk.get("status")}
+                    )
+        except Exception as e:
+            collected["error"] = str(e)
+        return collected
