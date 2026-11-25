@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from fastapi.responses import Response
+from fastapi.responses import JSONResponse, Response
 
 from app.api.dependencies import get_report_service
 from app.api.schemas.query_schema import QuerySchema
@@ -20,3 +20,11 @@ async def generate_report(
         media_type=XLSX_MEDIA_TYPE,
         headers={"Content-Disposition": disposition},
     )
+
+
+@report_router.post("/api/report/data")
+async def generate_report_data(
+    query: QuerySchema, report_service: ReportService = Depends(get_report_service)
+):
+    payload = await report_service.generate_report_data(query.query)
+    return JSONResponse(content=payload)

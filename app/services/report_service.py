@@ -21,21 +21,13 @@ class ReportService:
         self.query_service = query_service
 
     async def generate_report(self, query: str) -> tuple[bytes, str]:
-        collected = await self.query_service.collect_query(query)
-        error = collected.get("error")
-        data = collected.get("data") or []
-        sql = collected.get("sql") or ""
-
-        analysis = ""
-        if not error and data:
-            analysis = await self._generate_analysis(query, sql, data)
-
+        payload = await self._build_payload(query)
         wb = self._build_workbook(
-            query=query,
-            sql=sql,
-            data=data,
-            analysis=analysis,
-            error=error,
+            query=payload["query"],
+            sql=payload["sql"],
+            data=payload["rows"],
+            analysis=payload["analysis"],
+            error=payload["error"],
         )
 
         bio = io.BytesIO()
@@ -48,6 +40,53 @@ class ReportService:
         utf8_name = quote(f"数据报表_{ts}.xlsx")
         disposition = f"attachment; filename=\"{ascii_name}\"; filename*=UTF-8''{utf8_name}"
         return content, disposition
+
+    async def generate_report_data(self, query: str) -> dict:
+        payload = await self._build_payload(query)
+        return {
+            "query": payload["query"],
+            "sql": payload["sql"],
+            "columns": payload["columns"],
+            "rows": payload["rows"],
+            "analysis": payload["analysis"],
+            "error": payload["error"],
+            "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "row_count": len(payload["rows"]),
+        }
+
+    async def _build_payload(self, query: str) -> dict:
+        collected = await self.query_service.collect_query(query)
+        error = collected.get("error")
+        data = collected.get("data") or []
+        sql = collected.get("sql") or ""
+
+        rows = [self._to_jsonable(row) for row in data]
+        columns = list(rows[0].keys()) if rows else []
+
+        analysis = ""
+        if not error and rows:
+            analysis = await self._generate_analysis(query, sql, rows)
+
+        return {
+            "query": query,
+            "sql": sql,
+            "columns": columns,
+            "rows": rows,
+            "analysis": analysis,
+            "error": error,
+        }
+
+    @staticmethod
+    def _to_jsonable(row: dict) -> dict:
+        out = {}
+        for k, v in row.items():
+            if isinstance(v, Decimal):
+                out[k] = float(v)
+            elif isinstance(v, (datetime,)):
+                out[k] = v.strftime("%Y-%m-%d %H:%M:%S")
+            else:
+                out[k] = v
+        return out
 
     async def _generate_analysis(self, query: str, sql: str, data: list[dict]) -> str:
         limit = 20

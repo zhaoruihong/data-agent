@@ -119,12 +119,21 @@
         </button>
       </div>
     </div>
+
+    <!-- 报表界面（全屏覆盖层） -->
+    <ReportView
+      v-if="reportData"
+      :data="reportData"
+      :theme="currentTheme"
+      @close="reportData = null"
+    />
   </div>
 </template>
 
 <script setup>
 import { nextTick, ref, watch } from 'vue'
 import ThemeSwitcher from './components/ThemeSwitcher.vue'
+import ReportView from './components/ReportView.vue'
 import { defaultThemeKey, isValidTheme } from './themes.js'
 
 /* ========== 主题（纯展示，不影响数据） ========== */
@@ -144,6 +153,7 @@ const API_URL = '/api/query'
 const question = ref('')
 const loading = ref(false)
 const reportLoading = ref(false)
+const reportData = ref(null)
 const lastQuery = ref('')
 const messages = ref([])
 const messagesEl = ref(null)
@@ -284,7 +294,7 @@ async function generateReport() {
 
   reportLoading.value = true
   try {
-    const response = await fetch('/api/report', {
+    const response = await fetch('/api/report/data', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ query: q }),
@@ -293,26 +303,8 @@ async function generateReport() {
       const text = await response.text().catch(() => '')
       throw new Error(text || `生成报表失败（${response.status}）`)
     }
-
-    const blob = await response.blob()
-    const disposition = response.headers.get('Content-Disposition') || ''
-    let filename = `数据报表_${Date.now()}.xlsx`
-    const utf8Match = disposition.match(/filename\*=UTF-8''([^;]+)/)
-    if (utf8Match) {
-      filename = decodeURIComponent(utf8Match[1])
-    } else {
-      const asciiMatch = disposition.match(/filename="?([^";]+)"?/)
-      if (asciiMatch) filename = asciiMatch[1]
-    }
-
-    const url = window.URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = filename
-    document.body.appendChild(a)
-    a.click()
-    a.remove()
-    window.URL.revokeObjectURL(url)
+    const payload = await response.json()
+    reportData.value = payload
   } catch (e) {
     messages.value.push({
       role: 'assistant',
